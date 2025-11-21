@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Node/Next frontend
+node_modules/
+ai-web-research-frontend/node_modules/
+ai-web-research-frontend/.next/
+ai-web-research-frontend/.env.local
+ai-web-research-frontend/.vercel
+ai-web-research-frontend/.turbo
+
+# Reports & screenshots
+reports/
+screenshots/
+
+# OS/editor
+.DS_Store
+*.swp
