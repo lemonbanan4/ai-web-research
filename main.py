@@ -21,13 +21,20 @@ from reliability import score_source
 
 
 tasks: Dict[str, Dict[str, Any]] = {}
+os.makedirs("reports", exist_ok=True)
 
 async def run_research_task(task_id: str, query: str):
     tasks[task_id]["status"] = "Searching web..."
 
     # 1. Search
-    urls = await search_duckduckgo(query, limit=5)
-    tasks[task_id]["steps"].append(f"Found {len(urls)} results")
+    try:
+        urls = await search_duckduckgo(query, limit=5)
+        tasks[task_id]["steps"].append(f"Found {len(urls)} results")
+    except Exception as ex:
+        tasks[task_id]["status"] = "Search failed"
+        tasks[task_id]["steps"].append(f"Search error: {ex}")
+        tasks[task_id]["result"] = {"summary": "Search failed", "sources": []}
+        return
 
     extracted = []
 
@@ -41,7 +48,7 @@ async def run_research_task(task_id: str, query: str):
             page["reliability_score"] = score_source(page)
             extracted.append(page)
         except Exception as ex:
-            tasks[task_id]["steps"].append(f"Error loading {url}")
+            tasks[task_id]["steps"].append(f"Error loading {url}: {ex}")
 
     tasks[task_id]["status"] = "Summarizing with LLM..."
     tasks[task_id]["steps"].append("LLM starting...")
@@ -62,10 +69,6 @@ async def run_research_task(task_id: str, query: str):
         "summary": summary,
         "sources": extracted,
     }
-
-
-
-
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
@@ -167,6 +170,9 @@ async def export_pdf(req: ResearchResponse):
 
 @app.post("/chat")
 async def chat(req: dict):
+    if not client:
+        raise HTTPException(status_code=503, detail="Chat is disabled: missing OPENAI_API_KEY")
+
     history = req["history"]
     query = req["query"]
 
