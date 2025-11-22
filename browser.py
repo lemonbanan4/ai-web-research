@@ -30,8 +30,11 @@ async def fetch_page(url: str):
         """)
 
         # Fallbacks
-        title = article.get("title") if article else await page.title()
-        text = article.get("textContent", "") if article else await page.inner_text("body")
+        title = article.get("title") or (await page.title()) or url
+        raw_text = article.get("textContent", "") if article else ""
+        if not raw_text:
+            raw_text = await page.inner_text("body")
+        text = raw_text.strip()[:10000]
         excerpt = article.get("excerpt") if article else ""
         byline = article.get("byline") if article else ""
 
@@ -42,10 +45,13 @@ async def fetch_page(url: str):
 
         await browser.close()
 
+        snippet = excerpt or text[:180] or title
+
         return {
             "url": url,
-            "title": title or "",
-            "text": text or "",
+            "title": title.strip(),
+            "text": text.strip(),
+            "snippet": snippet.strip(),
             "excerpt": excerpt or "",
             "byline": byline or "",
             "screenshot": screenshot_name,

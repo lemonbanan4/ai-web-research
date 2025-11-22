@@ -62,7 +62,7 @@ def score_source(src):
     
     # If article too short > 0
     if len(text) < 200:
-        return 0
+        score -= 10
     
 
     # Length of article: longer = better; very short => 0
