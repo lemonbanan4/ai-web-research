@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import DOMPurify from "isomorphic-dompurify";
+import NavBar from "./components/NavBar";
+
+
 
 
 type SourceSummary = {
@@ -196,6 +199,7 @@ export default function HomePage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
+      <NavBar />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(250,204,21,0.12)_0,transparent_32%),radial-gradient(circle_at_80%_0%,rgba(99,102,241,0.18)_0,transparent_32%),radial-gradient(circle_at_50%_70%,rgba(14,165,233,0.12)_0,transparent_32%)]" />
       <div className="relative mx-auto flex max-w-5xl flex-col items-center px-6 py-12 sm:px-10 lg:px-12">
         <div className="w-full max-w-3xl space-y-6">
@@ -203,13 +207,8 @@ export default function HomePage() {
             <div className="flex items-center gap-3">
               <LemonBadge />
               <div className="flex flex-col">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">
-          
-                </span>
-                <span className="text-sm text-slate-400">
-                  
-                </span>
-                
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200" />
+                <span className="text-sm text-slate-400" />
               </div>
             </div>
           </div>
@@ -254,17 +253,20 @@ export default function HomePage() {
 
             {loading && (
               <div className="space-y-2 text-sm text-slate-400">
-                {progress.map((step, i) =>  (
+                {progress.map((step, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
                     {step}
-                      </div>
-                    ))}
                   </div>
-                )}
+                ))}
+              </div>
+            )}
+            {loading && (
+              <>
                 <div className="h-2 w-28 rounded-full bg-amber-400/40" />
                 <div className="h-2 w-20 rounded-full bg-amber-400/25" />
-              </div>
+              </>
+            )}
 
             {error && (
               <div className="rounded-xl border border-red-500/60 bg-red-950/60 px-4 py-3 text-sm text-red-100">
@@ -290,13 +292,12 @@ export default function HomePage() {
                 <div className="mt-4 flex justify-end">
                   <button
                     onClick={handleExportPDF}
-                    className="px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white text-sm"
+                    className="rounded-lg bg-indigo-500 px-3 py-2 text-sm text-white hover:bg-indigo-400"
                   >
                     Download PDF Report
                   </button>
                 </div>
               </div>
-              
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -358,7 +359,7 @@ export default function HomePage() {
             </div>
           )}
         </div>
-      </main>
-
+      </div>
+    </main>
   );
 }
