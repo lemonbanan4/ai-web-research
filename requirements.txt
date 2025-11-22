@@ -7,3 +7,4 @@ tldextract
 openai
 reportlab
 duckduckgo-search
+playwright

@@ -11,6 +11,7 @@ TRUSTED_REGISTERED = {
     "flashscore.com",
 }
 TRUSTED_SUFFIXES = {"gov", "gov.uk", "edu"}
+
 BLACKLISTED_REGISTERED = {
     # Example low-quality domains; adjust to your data.
     "clickbait.com",
@@ -34,38 +35,37 @@ def score_source(src):
 
     url = src.get("url") or ""
     text = src.get("text") or ""
+
     if not isinstance(url, str) or not isinstance(text, str):
         return 0
 
     url = url.strip()
     text = text.strip()
+
     if not url:
         return 0
-
+    
+    # Try parsing URL with tldextract
     try:
         parsed = tldextract.extract(url)
-        domain = parsed.domain.lower()
         suffix = parsed.suffix.lower()
         registered = parsed.registered_domain.lower()
     except Exception:
-        domain = ""
         suffix = ""
         registered = ""
 
     score = 50
-
+    
+    # Blacklisted > auto 0
     if registered in BLACKLISTED_REGISTERED:
         return 0
     
-    # Prevents backend exploding if a dependency is missing
-    if tldextract:
-        domain = tildextract.extract(url).domain
-    else:
-        domain = url.split("/")[2] if "://" in url else url
-
-    # Length of article: longer = better; very short => 0
+    # If article too short > 0
     if len(text) < 800:
         return 0
+    
+
+    # Length of article: longer = better; very short => 0
     if len(text) > 2000:
         score += 10
     if len(text) > 6000:
