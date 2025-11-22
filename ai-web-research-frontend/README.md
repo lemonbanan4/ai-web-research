@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+AI Web Research Frontend
+========================
 
-## Getting Started
+Next.js frontend for the AI web research agent. The backend (FastAPI + Playwright) handles search, scraping, screenshots, summarization, reliability scoring, and PDF export. This app provides:
+- Landing page (`/landing`) describing the product.
+- Main app (`/`) to run research jobs, poll status, view sources with screenshots, and export PDFs.
 
-First, run the development server:
+## Prerequisites
+- Node 18+ (LTS recommended)
+- Backend running and reachable (see `NEXT_PUBLIC_API_URL` below)
+- Keep secrets local: use `.env.local` (gitignored) for keys; do not commit `.env` files with secrets like `OPENAI_API_KEY`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Setup
+1) Install dependencies
+```
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2) Configure the backend URL (required)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Create `.env.local` (or set via Vercel env) with:
+```
+NEXT_PUBLIC_API_URL=https://your-backend-host
+```
+- The backend must expose:
+  - `POST /research` -> starts a task, returns `task_id`
+  - `GET /research/{task_id}` -> status, steps, result
+  - `POST /export_pdf` -> returns `{ url: "/reports/..." }`
+  - `GET /screenshots/*` -> served screenshots
+  - (optional) `POST /chat`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3) Run the app
+- Dev: `npm run dev` then open http://localhost:3000
+- Lint: `npm run lint`
+- Production build: `npm run build` then `npm run start`
+- Quick start (if backend runs on localhost:8000):
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
+```
 
-## Learn More
+## Pages
+- `/` Main app UI (NavBar + research form, polling, summary, sources with reliability/screenshot, PDF export)
+- `/landing` Marketing/overview page (NavBar + feature grid + CTA)
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment (Vercel)
+- Ensure `NEXT_PUBLIC_API_URL` is set in Vercel env vars.
+- This repo includes `vercel.json` pinning version 2 and `env` for local preview; override with project env settings as needed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes/Troubleshooting
+- If you see “Failed while polling for results”, check the backend logs and that `/research/{task_id}` returns JSON with `steps` and `result`.
+- Screenshots and PDFs are served by the backend; ensure those routes are reachable from the frontend origin.
+- Update NavBar links in `app/components/NavBar.tsx` if routes change.
+- Secrets: `.env.local` is gitignored—store `NEXT_PUBLIC_API_URL` there for local dev; set env vars in your hosting provider for production. Never commit `.env` with `OPENAI_API_KEY` or other secrets.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Related backend (reference)
+- FastAPI service with endpoints described above
+- Uses Playwright for page fetch/screenshot, Readability.js for extraction, OpenAI for summarization
+- Reliability scoring and PDF export live in the backend (not this app)
+- Backend quickstart (from repo root):
+  - `python3 -m venv venv && source venv/bin/activate`
+  - `pip install -r requirements.txt`
+  - `playwright install chromium`
+  - set `OPENAI_API_KEY` (env var or `.env`, not committed)
+  - run: `uvicorn main:app --reload --port 8000`
