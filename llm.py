@@ -19,7 +19,7 @@ async def summarize_sources(query: str, sources: list):
         sources_text += (
             f"\n\n### Source: {src['url']}\n"
             f"Title: {src['title']}\n"
-            f"Content:\n{src['text'][:8000]}\n"
+            f"Content:\n{src['text'][:4000]}\n"
         )
 
     prompt = f"""

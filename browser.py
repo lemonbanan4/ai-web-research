@@ -10,11 +10,11 @@ with open("readability.js", "r", encoding="utf8") as f:
 
 async def fetch_page(url: str):
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=True, args=["--disable-gpu"])
         context = await browser.new_context()
         page = await context.new_page()
 
-        await page.goto(url, timeout=30000, wait_until="domcontentloaded")
+        await page.goto(url, timeout=15000, wait_until="domcontentloaded")
 
         # Inject Readability
         await page.add_script_tag(content=READABILITY_SCRIPT)

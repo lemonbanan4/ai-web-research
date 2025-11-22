@@ -3,3 +3,7 @@ uvicorn[standard]
 pydantic
 httpx
 python-dotenv
+tldextract
+openai
+reportlab
+duckduckgo-search
